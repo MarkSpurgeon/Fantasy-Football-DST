@@ -28,7 +28,7 @@ n_weeks = 16
 
 ##### FANTASY FOOTBALL STATS
 
-if 1 == 0:
+if False:
     
     # scrape data
     import requests
@@ -61,7 +61,7 @@ team_list = np.array(team_list.iloc[:,0])
 
 ##### SCHEDULE
 
-if 1 == 0:
+if False:
     url = 'https://www.pro-football-reference.com/years/2017/games.htm'
     html = requests.get(url).content
     schedule_raw = pd.read_html(html)[0]
@@ -133,75 +133,77 @@ def find_str(s, char):
 
     return -1
 
-# irregular IDs inside of ESPN urls that must be input manually
-url_ids = [19203589, 20663439, 20739796, 20808335, 20886007, 20955567, 21036470, 21114574,
-           21218174, 21307531, 21388874, 21476348, 21570070, 21652389, 21730080, 21792884]
+if False:
 
-# vegas lines are stored here
-vegas = np.zeros([n_weeks,len(team_list),2])
-vegas.fill(np.nan)
+    # irregular IDs inside of ESPN urls that must be input manually
+    url_ids = [19203589, 20663439, 20739796, 20808335, 20886007, 20955567, 21036470, 21114574,
+               21218174, 21307531, 21388874, 21476348, 21570070, 21652389, 21730080, 21792884]
 
-# lists containing all possible spreads and over/unders to search through
-spread_list = np.arange(-30, 0, 0.5)
-overunder_list = np.arange(70, 30, -0.5)
+    # vegas lines are stored here
+    vegas = np.zeros([n_weeks,len(team_list),2])
+    vegas.fill(np.nan)
 
-for week_idx in range(16):
-    if week_idx == 0:
-        url = 'http://www.espn.com/chalk/story/_/id/%d/nfl-full-list-opening-week-%d-odds-westgate-las-vegas-superbook' % (url_ids[week_idx], week_idx + 1)
-    else:
-        url = 'http://www.espn.com/chalk/story/_/id/%d/nfl-full-list-week-%d-odds-westgate-las-vegas-superbook' % (url_ids[week_idx], week_idx + 1)
-    page = requests.get(url)
-    bs = BeautifulSoup(page.content, 'html.parser')
-    rows = bs.select('p')
+    # lists containing all possible spreads and over/unders to search through
+    spread_list = np.arange(-30, 0, 0.5)
+    overunder_list = np.arange(70, 30, -0.5)
 
-    for row_idx in range(len(rows)):
-        row = str(rows[row_idx])
-        team_isinrow = []
-        for team_name in team_list: team_isinrow.append(find_str(row, team_name))
-        team_isinrow = np.array(team_isinrow)
-        team_locations = [i for i in team_isinrow if i > -1]
-        if (len(team_locations) == 2):
-            #print(row_idx)
-            team_indices = np.where(team_isinrow > -1)[0]
-            #print(team_list[team_indices])
-            
-            # find spread
-            for spread in spread_list:
-                if spread % 1 == 0: spread = np.int(spread)
-                spread_location = find_str(row, str(spread))
-                if spread_location > -1: break
-                
-            # find over/under
-            for overunder in overunder_list:
-                if overunder % 1 == 0: overunder = np.int(overunder)
-                if find_str(row, str(overunder)) > -1: break
-            
-            
-            if np.all(spread_location > np.array(team_locations)):
-                if team_locations[0] > team_locations[1]:
-                    vegas[week_idx, team_indices[0], 0] = spread
-                    vegas[week_idx, team_indices[1], 0] = -spread
-                
+    for week_idx in range(16):
+        if week_idx == 0:
+            url = 'http://www.espn.com/chalk/story/_/id/%d/nfl-full-list-opening-week-%d-odds-westgate-las-vegas-superbook' % (url_ids[week_idx], week_idx + 1)
+        else:
+            url = 'http://www.espn.com/chalk/story/_/id/%d/nfl-full-list-week-%d-odds-westgate-las-vegas-superbook' % (url_ids[week_idx], week_idx + 1)
+        page = requests.get(url)
+        bs = BeautifulSoup(page.content, 'html.parser')
+        rows = bs.select('p')
+
+        for row_idx in range(len(rows)):
+            row = str(rows[row_idx])
+            team_isinrow = []
+            for team_name in team_list: team_isinrow.append(find_str(row, team_name))
+            team_isinrow = np.array(team_isinrow)
+            team_locations = [i for i in team_isinrow if i > -1]
+            if (len(team_locations) == 2):
+                #print(row_idx)
+                team_indices = np.where(team_isinrow > -1)[0]
+                #print(team_list[team_indices])
+
+                # find spread
+                for spread in spread_list:
+                    if spread % 1 == 0: spread = np.int(spread)
+                    spread_location = find_str(row, str(spread))
+                    if spread_location > -1: break
+
+                # find over/under
+                for overunder in overunder_list:
+                    if overunder % 1 == 0: overunder = np.int(overunder)
+                    if find_str(row, str(overunder)) > -1: break
+
+
+                if np.all(spread_location > np.array(team_locations)):
+                    if team_locations[0] > team_locations[1]:
+                        vegas[week_idx, team_indices[0], 0] = spread
+                        vegas[week_idx, team_indices[1], 0] = -spread
+
+                    else:
+                        vegas[week_idx, team_indices[1], 0] = spread
+                        vegas[week_idx, team_indices[0], 0] = -spread
+
                 else:
-                    vegas[week_idx, team_indices[1], 0] = spread
-                    vegas[week_idx, team_indices[0], 0] = -spread
-            
-            else:
-                if team_locations[0] > team_locations[1]:
-                    vegas[week_idx, team_indices[1], 0] = spread
-                    vegas[week_idx, team_indices[0], 0] = -spread
-                
-                else:
-                    vegas[week_idx, team_indices[0], 0] = spread
-                    vegas[week_idx, team_indices[1], 0] = -spread
-            
-            vegas[week_idx, team_indices[0], 1] = overunder
-            vegas[week_idx, team_indices[1], 1] = overunder
+                    if team_locations[0] > team_locations[1]:
+                        vegas[week_idx, team_indices[1], 0] = spread
+                        vegas[week_idx, team_indices[0], 0] = -spread
+
+                    else:
+                        vegas[week_idx, team_indices[0], 0] = spread
+                        vegas[week_idx, team_indices[1], 0] = -spread
+
+                vegas[week_idx, team_indices[0], 1] = overunder
+                vegas[week_idx, team_indices[1], 1] = overunder
 
 
 
-    with open("nfl_vegas_2017.file", "wb") as f:
-        pickle.dump(vegas, f, pickle.HIGHEST_PROTOCOL)
+        with open("nfl_vegas_2017.file", "wb") as f:
+            pickle.dump(vegas, f, pickle.HIGHEST_PROTOCOL)
 
 else:
     # load scraped vegas lines
@@ -234,7 +236,7 @@ else: print('bye weeks DO NOT match')
 
 ##### EXPERT RANKINGS
 
-if 1 == 0:
+if False:
     dwc_rankings =  np.empty((16))
     fmt1 = ['09','09','09','09','10','10','10','10','11','11','11','11','11','12','12','12']
     for i in range(16):
@@ -261,7 +263,7 @@ if 1 == 0:
     with open('dwc_rankings_2016.file', 'wb') as f:
         pickle.dump(dwc_rankings, f, pickle.HIGHEST_PROTOCOL)
 
-elif 1 == 0:
+elif False:
     
     # load scraped data
     with open('dwc_rankings_2016.file', 'rb') as f:
@@ -349,13 +351,13 @@ scores_all = scores_all[~np.isnan(scores_all)]
 plt.hist(scores_all)
 plt.hist(np.log(scores_all - np.min(scores_all) + 5))
 
-if 1 == 0:
+if False:
     # log transform in order to normalize scores
     s[:,:,10] = np.log(s[:,:,10] - np.min(scores_all) + 1)
     s_vs[:,:,10] = np.log(s_vs[:,:,10] - np.min(scores_all) + 1)
 
 # little experiment: confirm that best transformation involves adding smallest possible constant
-if 1 == 0:
+if False:
     from scipy import stats as statistics
     print(statistics.kstest(scores_all, 'norm')[0])
     for i in range(1,10): print(statistics.kstest(np.log(scores_all - np.min(scores_all) + i), 'norm')[0])
