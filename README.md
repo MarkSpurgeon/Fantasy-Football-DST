@@ -35,5 +35,7 @@ Random forest comes surprisingly close to matching the performance of the well-r
 
 Things that I would be interested in exploring in the future:
 **(1)** does incorporating information about quality of opponent improve performance?
+
 **(2)** do the plots look qualitatively similar for the 2016 season? More specifically, do these methods perform the same with respect to each other and do the same features stick out as most important?
+
 **(3)** most ambitiously: are there other extremely important tidbits of information that could be folded into these models? I'm thinking specifically about things like a backup quarterback starting the upcoming game - this is something that is often leveraged by amateurs and experts alike.
