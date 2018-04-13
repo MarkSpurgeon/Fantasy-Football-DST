@@ -34,8 +34,9 @@ The primary challenge in this project was and continues to be feature engineerin
 Random forest comes surprisingly close to matching the performance of the well-respected expert. Since there remains much room for improving the features, it does seem possible that further improvement could allow me to match this expert's performance.
 
 Things that I would be interested in exploring in the future:
-**(1)** does incorporating information about quality of opponent improve performance?
 
-**(2)** do the plots look qualitatively similar for the 2016 season? More specifically, do these methods perform the same with respect to each other and do the same features stick out as most important?
+**(1)** Does incorporating information about quality of opponent improve performance?
 
-**(3)** most ambitiously: are there other extremely important tidbits of information that could be folded into these models? I'm thinking specifically about things like a backup quarterback starting the upcoming game - this is something that is often leveraged by amateurs and experts alike.
+**(2)** Do the plots look qualitatively similar for the 2016 season? More specifically, do these methods perform the same with respect to each other and do the same features stick out as most important?
+
+**(3)** Most ambitiously: are there other extremely important tidbits of information that could be folded into these models? I'm thinking specifically about things like a backup quarterback starting the upcoming game - this is something that is often leveraged by amateurs and experts alike.
