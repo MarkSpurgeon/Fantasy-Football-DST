@@ -31,8 +31,6 @@ Finally, ridge regression and random forest were utilized in order to model fant
 
 The primary challenge in this project was and continues to be feature engineering. Even with the simple data that I have scraped, hundreds of features could be produced that would allow the models to utilize different - potentially useful - information. For example, it could be that a defense's most recent 4 games are the most predictive and that games prior to that have little bearing on future performance. In that case, you might want to include the mean fantasy score over previous 4 weeks as a feature. Similar features could be produced for a vast array of scenarios. Perhaps the biggest surprise is that "naive + versus" method performs almost exactly as well as random forest. The "naive + versus" method simply averages the mean fantasy score for a defense and the mean fantasy score against the upcoming opponent. For example, if an upcoming matchup involved Buffalo and Miami, the "naive + versus" method would take the mean fantasy points scored by Buffalo's defense over the entire season and average this number with the mean fantasy points scored by DST units in their matchups with Miami. In doing so, this heuristic attempts to strike a balance between ranking highly defenses that have performed well and ranking highly defenses that have advantageous matchups. The success of "naive + versus" tells me that the next step of this project should involve finding a way to incorporate information about the quality of upcoming opponent.
 
-Random forest comes surprisingly close to matching the performance of the well-respected expert. Since there remains much room for improving the features, it does seem possible that further improvement could allow me to match this expert's performance.
-
 Things that I would be interested in exploring in the future:
 
 **(1)** Does incorporating information about quality of opponent improve performance?
@@ -40,3 +38,5 @@ Things that I would be interested in exploring in the future:
 **(2)** Do the plots look qualitatively similar for the 2016 season? More specifically, do these methods perform the same with respect to each other and do the same features stick out as most important?
 
 **(3)** Most ambitiously: are there other extremely important tidbits of information that could be folded into these models? I'm thinking specifically about things like a backup quarterback starting the upcoming game - this is something that is often leveraged by amateurs and experts alike.
+
+Random forest comes surprisingly close to matching the performance of the well-respected expert. Since there remains much room for improving the features, it does seem possible that further improvement could allow me to match this expert's performance.
