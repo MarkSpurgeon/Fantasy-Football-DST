@@ -17,7 +17,6 @@
 #        (b) plots of feature importances in machine learning models
 
 
-
 ################ Data Scraping/Processing ################
 
 import pandas as pd
@@ -28,7 +27,7 @@ n_weeks = 16
 
 ##### FANTASY FOOTBALL STATS
 
-if False:
+if True:
     
     # scrape data
     import requests
@@ -41,8 +40,8 @@ if False:
         stats.append(df[9])
         #print(len(stats))
     
-    with open("ff_stats_2017.file", "wb") as f:
-        pickle.dump(stats, f, pickle.HIGHEST_PROTOCOL)
+    #with open("ff_stats_2017.file", "wb") as f:
+    #    pickle.dump(stats, f, pickle.HIGHEST_PROTOCOL)
 
 else:
     
@@ -61,13 +60,28 @@ team_list = np.array(team_list.iloc[:,0])
 
 ##### SCHEDULE
 
-if False:
+# function to identify positions in a string matching to a substring
+def find_str(s, char):
+    index = 0
+
+    if char in s:
+        c = char[0]
+        for ch in s:
+            if ch == c:
+                if s[index:index+len(char)] == char:
+                    return index
+
+            index += 1
+
+    return -1
+
+if True:
     url = 'https://www.pro-football-reference.com/years/2017/games.htm'
     html = requests.get(url).content
     schedule_raw = pd.read_html(html)[0]
 
-    with open("nfl_schedule_2017.file", "wb") as f:
-        pickle.dump(schedule_raw, f, pickle.HIGHEST_PROTOCOL)
+    #with open("nfl_schedule_2017.file", "wb") as f:
+    #    pickle.dump(schedule_raw, f, pickle.HIGHEST_PROTOCOL)
 
 else:
     # load raw schedule
@@ -83,7 +97,7 @@ game_info.fill(np.nan)
 
 for week_idx in range(16):
     week = week_idx + 1
-    df_week = np.array(schedule_raw.loc[df['Week'] == str(week)])
+    df_week = np.array(schedule_raw.loc[schedule_raw['Week'] == str(week)])
     
     for row_idx in range(df_week.shape[0]):
         row = df_week[row_idx,:]
@@ -118,22 +132,9 @@ for week_idx in range(16):
 
 ##### VEGAS LINES
 
-# function to identify positions in a string matching to a substring
-def find_str(s, char):
-    index = 0
+from bs4 import BeautifulSoup
 
-    if char in s:
-        c = char[0]
-        for ch in s:
-            if ch == c:
-                if s[index:index+len(char)] == char:
-                    return index
-
-            index += 1
-
-    return -1
-
-if False:
+if True:
 
     # irregular IDs inside of ESPN urls that must be input manually
     url_ids = [19203589, 20663439, 20739796, 20808335, 20886007, 20955567, 21036470, 21114574,
@@ -202,8 +203,8 @@ if False:
 
 
 
-        with open("nfl_vegas_2017.file", "wb") as f:
-            pickle.dump(vegas, f, pickle.HIGHEST_PROTOCOL)
+        #with open("nfl_vegas_2017.file", "wb") as f:
+        #    pickle.dump(vegas, f, pickle.HIGHEST_PROTOCOL)
 
 else:
     # load scraped vegas lines
@@ -222,19 +223,10 @@ for week_idx in range(16):
     vegas[week_idx, diff, 0] = 0
     vegas[week_idx, diff, 1] = np.nanmean(vegas[week_idx, :, 1])
     
-# make sure that bye weeks match in game_info and stats  
-count = 0
-for week_idx in range(16):
-      count = count + len(set(np.where(np.isnan(s[week_idx, :, 0]))[0]) -
-                          set(np.where(np.isnan(vegas[week_idx, :, 0]))[0]))
-      count = count + len(set(np.where(np.isnan(vegas[week_idx, :, 0]))[0]) -
-                          set(np.where(np.isnan(s[week_idx, :, 0]))[0]))
-
-if count == 0: print('bye weeks DO match')
-else: print('bye weeks DO NOT match')
-
-
 ##### EXPERT RANKINGS
+
+def intersect(a, b):
+    return list(set(a) & set(b))
 
 if False:
     dwc_rankings =  np.empty((16))
@@ -284,6 +276,8 @@ else:
     
     
 ##### PROCESSING
+
+import matplotlib.pyplot as plt
 
 # function to calculate dst fantasy scores for nfl.com standard scoring
 def fantasy_score(s_row):
@@ -344,6 +338,16 @@ for week_idx in range(0,n_weeks):
     s[week_idx, :, :] = stats_store
     s_vs[week_idx, :, :] = stats_store_vs
 
+# make sure that bye weeks match in vegas and stats  
+count = 0
+for week_idx in range(16):
+      count = count + len(set(np.where(np.isnan(s[week_idx, :, 0]))[0]) -
+                          set(np.where(np.isnan(vegas[week_idx, :, 0]))[0]))
+      count = count + len(set(np.where(np.isnan(vegas[week_idx, :, 0]))[0]) -
+                          set(np.where(np.isnan(s[week_idx, :, 0]))[0]))
+
+if count == 0: print('bye weeks DO match')
+else: print('bye weeks DO NOT match')
 
 # histogram of all scores
 scores_all = s[:,:,10]
@@ -366,6 +370,7 @@ if False:
 
 ################ Analysis ################
 
+from numpy import linspace
 import scipy as sp
 from sklearn.metrics import mean_squared_error
 from math import sqrt
@@ -540,8 +545,6 @@ for test_idx in range(4, 16):
 
 ##### PLOT: PERFORMANCE
     
-import matplotlib.pyplot as plt
-
 # prepare plotting arrays
 y = np.array([])
 y_means = np.array([])
@@ -569,20 +572,13 @@ plt.ylim(-0.5, 0.5)
 for margin in [-0.23, -0.18, 0.15, 0.2]:
     ax.plot(np.arange(7) + margin, y_means, "or", c='black', marker='_')
 plt.show()
-plt.savefig('rank_correlation.png', bbox_inches='tight', dpi=100)
+#plt.savefig('rank_correlation.png', bbox_inches='tight', dpi=100)
 
 
 ##### PLOT: FEATURE IMPORTANCES
 
 import seaborn as sns
 from matplotlib.colors import LinearSegmentedColormap
-
-# create color palette for stacked bars
-colors = sns.color_palette("tab10", n_colors=n)
-cmap1 = LinearSegmentedColormap.from_list("my_colormap", colors)
-
-palette = []
-for i in range(n): palette.append(cmap1(linspace(0, 1, num=12, endpoint=True, retstep=False)[i]))
 
 # format strings for use in legend (there is definitely a better way)
 week_list = []
@@ -594,6 +590,13 @@ n = imp_temp.shape[0]
 N = imp_temp.shape[1]
 ind = np.arange(N)
 width = 0.5
+
+# create color palette for stacked bars
+colors = sns.color_palette("tab10", n_colors=n)
+cmap1 = LinearSegmentedColormap.from_list("my_colormap", colors)
+
+palette = []
+for i in range(n): palette.append(cmap1(linspace(0, 1, num=12, endpoint=True, retstep=False)[i]))
 
 # stacked barplots
 plt.subplot(2, 1, 1)
@@ -637,5 +640,5 @@ leg = plt.legend(list(reversed(store)), list(reversed(week_list)),
 leg.get_frame().set_linewidth(0.0)
 
 plt.tight_layout()
-
-plt.savefig('feature_importance.pdf', bbox_inches='tight')
+plt.show()
+#plt.savefig('feature_importance.pdf', bbox_inches='tight')
