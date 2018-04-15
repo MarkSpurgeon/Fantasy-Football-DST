@@ -27,7 +27,7 @@ n_weeks = 16
 
 ##### FANTASY FOOTBALL STATS
 
-if True:
+if False:
     
     # scrape data
     import requests
@@ -75,7 +75,7 @@ def find_str(s, char):
 
     return -1
 
-if True:
+if False:
     url = 'https://www.pro-football-reference.com/years/2017/games.htm'
     html = requests.get(url).content
     schedule_raw = pd.read_html(html)[0]
@@ -134,7 +134,7 @@ for week_idx in range(16):
 
 from bs4 import BeautifulSoup
 
-if True:
+if False:
 
     # irregular IDs inside of ESPN urls that must be input manually
     url_ids = [19203589, 20663439, 20739796, 20808335, 20886007, 20955567, 21036470, 21114574,
